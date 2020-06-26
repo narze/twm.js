@@ -31,37 +31,31 @@ Event.on("mouseDidMove", (point) => {
   })
 
   moveActiveWindow(lastMousePoint, point)
+
   lastMousePoint = point
 })
 
 function showModal(point) {
   // const origin = { x: 200, y: 400 }
-  modalWeight++
+  modalWeight = _.min([modalWeight * 1.05, MAX_WEIGHT])
 
-  const tempModal = Modal.build({
-    text: "STOP YER\nMOUSE! 🐁",
-    weight: modalWeight,
-  })
+  if (modalWeight < MAX_WEIGHT * 0.2) return
 
-  const modalFrame = tempModal.frame()
-  Phoenix.log(modalFrame.height)
+  Phoenix.log(modalWeight)
 
   const modal = Modal.build({
-    text: tempModal.text,
-    weight: tempModal.weight,
-    origin() { // TODO: Fix modal location
-      const p = _.clone(point)
-      p.x = p.x - modalFrame.width / 2
-      p.y = Screen.main().frame().height - p.y - modalFrame.height * 1.5
-      return p
+    text: modalWeight <= MAX_WEIGHT / 2 ? 'Mouse move detected 🐁' : "STOP YOUR\nMOUSE! 🐁",
+    weight: modalWeight,
+    duration: 0.2,
+    origin: (m) => {
+      return {
+        x: point.x - ( m.width / 2 ),
+        y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
+      };
     },
   })
 
   modal.show()
-
-  setTimeout(() => {
-    modal.close()
-  }, 2000)
 }
 
 function moveActiveWindow(lastPoint, currentPoint) {

@@ -1,5 +1,7 @@
-const trollingEnabled = false
-const debounceThreshold = 10
+const trollingEnabled = true
+const debounceThreshold = 100
+let lastMousePoint = null
+let modalWeight = 20
 
 const throttlingA = _.throttle(function (callback) {
   Phoenix.log("Throttled")
@@ -18,34 +20,32 @@ Event.on("mouseDidMove", (point) => {
     showModal(point)
   })
 
-  moveWindows()
+  // moveWindows(lastMousePoint, point)
+
+  moveActiveWindow(lastMousePoint, point)
+  lastMousePoint = point
 })
-
-function debouncing() {
-  if (isDebouncing) return true;
-
-  Phoenix.log("Debounce Start")
-  isDebouncing = true
-
-  const _debounceTimer = new Timer(debounceThreshold / 1000, false, () => {
-    isDebouncing = false
-  })
-
-  Phoenix.log("Debounce done")
-
-  return false
-}
 
 function showModal(point) {
   // const origin = { x: 200, y: 400 }
+  modalWeight++
+
+  const tempModal = Modal.build({
+    text: "STOP YER\nMOUSE! 🐁",
+    weight: modalWeight,
+  })
+
+  const modalFrame = tempModal.frame()
+  Phoenix.log(modalFrame.height)
 
   const modal = Modal.build({
-    text: "STOP YER\nMOUSE! 🐁",
-    weight: 160,
-    origin() {
-      point.x = point.x - 400
-      point.y = Screen.main().frame().height - point.y - 200
-      return point
+    text: tempModal.text,
+    weight: tempModal.weight,
+    origin() { // TODO: Fix modal location
+      const p = _.clone(point)
+      p.x = p.x - modalFrame.width / 2
+      p.y = Screen.main().frame().height - p.y - modalFrame.height * 1.5
+      return p
     },
   })
 
@@ -54,6 +54,18 @@ function showModal(point) {
   setTimeout(() => {
     modal.close()
   }, 2000)
+}
+
+function moveActiveWindow(lastPoint, currentPoint) {
+  if (!lastPoint) return
+  if (!trollingEnabled) return
+
+  const window = Window.focused()
+
+  window.setTopLeft({
+    x: window.frame().x + (lastPoint.x - currentPoint.x),
+    y: window.frame().y + (lastPoint.y - currentPoint.y),
+  })
 }
 
 // TODO: This stills use too much resources -> Optimize!

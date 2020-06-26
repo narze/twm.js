@@ -1,26 +1,34 @@
 const trollingEnabled = true
-const debounceThreshold = 100
+const throttleThreshold = 30
+const debounceThreshold = 2000
+const MAX_WEIGHT = 150
+const MIN_WEIGHT = 20
 let lastMousePoint = null
 let modalWeight = 20
 
-const throttlingA = _.throttle(function (callback) {
+const throttle = _.throttle(function (callback) {
   Phoenix.log("Throttled")
   callback()
-}, debounceThreshold, { leading: true, trailing: false })
+}, throttleThreshold, { leading: true, trailing: false })
 
-const throttlingB = _.throttle(function (callback) {
+const debounce = _.debounce(function (callback) {
   Phoenix.log("Throttled")
   callback()
-}, debounceThreshold * 10, { leading: true, trailing: false })
+}, debounceThreshold, { leading: false, trailing: true })
 
 Event.on("mouseDidMove", (point) => {
-  Phoenix.log(point.x, point.y)
-
-  throttlingA(() => {
+  // Phoenix.log(point.x, point.y)
+  throttle(() => {
     showModal(point)
   })
 
-  // moveWindows(lastMousePoint, point)
+  debounce(() => {
+    if (modalWeight >= MAX_WEIGHT / 2) {
+      Modal.build({ text: "GOOD.", duration: 1.0, weight: 200 }).show()
+    }
+
+    modalWeight = MIN_WEIGHT
+  })
 
   moveActiveWindow(lastMousePoint, point)
   lastMousePoint = point

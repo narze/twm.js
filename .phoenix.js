@@ -59,15 +59,19 @@ function showModal(point) {
 }
 
 function moveActiveWindow(lastPoint, currentPoint) {
-  if (!lastPoint) return
   if (!trollingEnabled) return
+  if (modalWeight < MAX_WEIGHT / 2) return
+  if (!lastPoint) return
 
+  // let window = Window.at(currentPoint) || Window.focused()
   const window = Window.focused()
 
-  window.setTopLeft({
-    x: window.frame().x + (lastPoint.x - currentPoint.x),
-    y: window.frame().y + (lastPoint.y - currentPoint.y),
-  })
+  if (window) {
+    window.setTopLeft({
+      x: window.frame().x + (lastPoint.x - currentPoint.x) * (2 + Math.random() * 2),
+      y: window.frame().y + (lastPoint.y - currentPoint.y) * (2 + Math.random() * 2),
+    })
+  }
 }
 
 // TODO: This stills use too much resources -> Optimize!

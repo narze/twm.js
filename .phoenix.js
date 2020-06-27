@@ -8,17 +8,12 @@ const GAP_DOUBLED = GAP * 2
 const TOP_OFFSET = 28
 let lastMousePoint = null
 let modalWeight = 20
+let currentFocusedWindow = null
 
 Key.on('space', [ 'control', 'option', 'command' ], () => Phoenix.reload())
 
 // TODO:
 // 3. Toggle Trolling mode
-function getMenubarOffset(screen = Screen.main()) {
-  const visibleFrame = screen.visibleFrame()
-  const fullFrame = screen.frame()
-
-  return fullFrame.height - visibleFrame.height
-}
 
 Key.on('h', [ 'option', 'shift' ], () => resizeWindowHalf('left'));
 // Colemak i = Qwerty l
@@ -114,8 +109,9 @@ function resizeWindowTwoThird(position) {
   })
 }
 
+// TODO: Fix focusing invisible window
 function focusWindow(direction) {
-  const currentWindow = Window.focused()
+  const currentWindow = Window.focused() // || currentFocusedWindow
   const spaceHash = Space.active().hash()
   let focusedWindow = null
 
@@ -126,12 +122,17 @@ function focusWindow(direction) {
       return false
     }
 
-    if (window.spaces()[0].hash() == spaceHash) {
+    if (window.spaces()[0] && window.spaces()[0].hash() == spaceHash) {
+      if (!window.isVisible()) { return false }
+
+      // currentFocusedWindow = window
       focusedWindow = window
+
+      Phoenix.log(window.app().name(), window.isVisible())
+
       return window.focus()
     }
 
-    Phoenix.log('space unmatched')
     return false
   })
 
@@ -233,4 +234,11 @@ function moveActiveWindow(lastPoint, currentPoint) {
       y: window.frame().y + (lastPoint.y - currentPoint.y) * (2 + Math.random() * 2),
     })
   }
+}
+
+function getMenubarOffset(screen = Screen.main()) {
+  const visibleFrame = screen.visibleFrame()
+  const fullFrame = screen.frame()
+
+  return fullFrame.height - visibleFrame.height
 }

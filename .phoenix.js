@@ -12,148 +12,116 @@ let modalWeight = 20
 Key.on('space', [ 'control', 'option', 'command' ], () => Phoenix.reload())
 
 // TODO:
-// 1. Moving windows (Ctrl+shift+vim movements / arrows)
-// 2. Focusing windows (Ctrl+vim movements / arrows)
 // 3. Toggle Trolling mode
-function getScreenBarOffset(screen) {
+function getMenubarOffset(screen = Screen.main()) {
   const visibleFrame = screen.visibleFrame()
   const fullFrame = screen.frame()
 
   return fullFrame.height - visibleFrame.height
 }
 
-Key.on('h', [ 'option', 'shift' ], function () {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: 0 + GAP,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width / 2 - GAP * 1.5,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-});
-
+Key.on('h', [ 'option', 'shift' ], () => resizeWindowHalf('left'));
 // Colemak i = Qwerty l
-Key.on('i', [ 'option', 'shift' ], function () {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: screenFrame.width / 2 + GAP * 0.5,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width / 2 - GAP * 1.5,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-});
-
-Key.on('l', [ 'option', 'shift' ], function () {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: screenFrame.width / 2 + GAP * 0.5,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width / 2 - GAP * 1.5,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-});
+Key.on('i', [ 'option', 'shift' ], () => resizeWindowHalf('right'));
+Key.on('l', [ 'option', 'shift' ], () => resizeWindowHalf('right'));
 
 // Third
-
-Key.on('1', ['control', 'shift'], () => {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: 0 + GAP,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width / 3 - GAP * 1.5,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-})
-
-Key.on('2', ['control', 'shift'], () => {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: screenFrame.width / 3 + GAP / 2,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width / 3 - GAP,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-})
-
-Key.on('3', ['control', 'shift'], () => {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: screenFrame.width / 3 * 2 + GAP / 2,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width / 3 - GAP * 1.5,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-})
+Key.on('1', ['control', 'shift'], () => resizeWindowThird('left'))
+Key.on('2', ['control', 'shift'], () => resizeWindowThird('center'))
+Key.on('3', ['control', 'shift'], () => resizeWindowThird('right'))
 
 // Two thirds
-
-Key.on('4', ['control', 'shift'], () => {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: 0 + GAP,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width * 2 / 3 - GAP * 1.5,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-})
-
-Key.on('5', ['control', 'shift'], () => {
-  const screen = Screen.main()
-  const screenFrame = screen.flippedVisibleFrame()
-  const window = Window.focused()
-
-  const topOffset = getScreenBarOffset(screen)
-
-  window.setFrame({
-    x: screenFrame.width / 3 + GAP / 2,
-    y: topOffset + 0 + GAP,
-    width: screenFrame.width * 2 / 3 - GAP * 1.5,
-    height: screenFrame.height - GAP_DOUBLED,
-  })
-})
+Key.on('4', ['control', 'shift'], () => resizeWindowTwoThird('left'))
+Key.on('5', ['control', 'shift'], () => resizeWindowTwoThird('right'))
 
 // Focus left / right
-Key.on('h', ['option'], () => {
+Key.on('h', ['option'], () => focusWindow('west'))
+Key.on('l', ['option'], () => focusWindow('east'))
+Key.on('i', ['option'], () => focusWindow('east'))
+
+function resizeWindowHalf(position) {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getMenubarOffset(screen)
+
+  const x = position === 'left' ? GAP : screenFrame.width / 2 + GAP / 2
+
+  window.setFrame({
+    x,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width / 2 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+}
+
+function resizeWindowThird(position) {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getMenubarOffset(screen)
+
+  let x, width;
+
+  switch (position) {
+    case 'left':
+      x = 0 + GAP
+      width = screenFrame.width / 3 - GAP * 1.5
+      break
+    case 'center':
+      x = screenFrame.width / 3 + GAP / 2
+      width = screenFrame.width / 3 - GAP
+      break
+    case 'right':
+      x = screenFrame.width / 3 * 2 + GAP / 2
+      width = screenFrame.width / 3 - GAP * 1.5
+      break
+  }
+
+  window.setFrame({
+    x,
+    y: topOffset + 0 + GAP,
+    width,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+}
+
+function resizeWindowTwoThird(position) {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getMenubarOffset(screen)
+
+  let x
+
+  switch (position) {
+    case 'left':
+      x = 0 + GAP
+      break
+    case 'right':
+      x = screenFrame.width / 3 + GAP / 2
+      break
+  }
+
+  window.setFrame({
+    x,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width * 2 / 3 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+}
+
+function focusWindow(direction) {
   const currentWindow = Window.focused()
   const spaceHash = Space.active().hash()
   let focusedWindow = null
 
-  const success = currentWindow.neighbours('west').some(window => {
+  if (!currentWindow) { return }
+
+  const success = currentWindow.neighbours(direction).some(window => {
     if (window.hash() == currentWindow) {
       return false
     }
@@ -186,87 +154,7 @@ Key.on('h', ['option'], () => {
 
     modal.show()
   }
-})
-
-Key.on('i', ['option'], () => {
-  const currentWindow = Window.focused()
-  const spaceHash = Space.active().hash()
-  let focusedWindow = null
-
-  const success = currentWindow.neighbours('east').some(window => {
-    if (window.hash() == currentWindow) {
-      return false
-    }
-
-    if (window.spaces()[0].hash() == spaceHash) {
-      focusedWindow = window
-      return window.focus()
-    }
-
-    Phoenix.log('space unmatched')
-    return false
-  })
-
-  if (success) {
-    const point = focusedWindow.topLeft()
-    point.x += focusedWindow.frame().width / 2
-    point.y += focusedWindow.frame().height / 2
-
-    const modal = Modal.build({
-      text: '👉',
-      weight: 40,
-      duration: 0.1,
-      origin: (m) => {
-        return {
-          x: point.x - ( m.width / 2 ),
-          y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
-        };
-      },
-    })
-
-    modal.show()
-  }
-})
-
-Key.on('l', ['option'], () => {
-  const currentWindow = Window.focused()
-  const spaceHash = Space.active().hash()
-  let focusedWindow = null
-
-  const success = currentWindow.neighbours('east').some(window => {
-    if (window.hash() == currentWindow) {
-      return false
-    }
-
-    if (window.spaces()[0].hash() == spaceHash) {
-      focusedWindow = window
-      return window.focus()
-    }
-
-    Phoenix.log('space unmatched')
-    return false
-  })
-
-  if (success) {
-    const point = focusedWindow.topLeft()
-    point.x += focusedWindow.frame().width / 2
-    point.y += focusedWindow.frame().height / 2
-
-    const modal = Modal.build({
-      text: '👉',
-      weight: 40,
-      duration: 0.1,
-      origin: (m) => {
-        return {
-          x: point.x - ( m.width / 2 ),
-          y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
-        };
-      },
-    })
-
-    modal.show()
-  }
-})
+}
 
 const throttle = _.throttle(function (callback) {
   Phoenix.log("Throttled")
@@ -343,56 +231,6 @@ function moveActiveWindow(lastPoint, currentPoint) {
     window.setTopLeft({
       x: window.frame().x + (lastPoint.x - currentPoint.x) * (2 + Math.random() * 2),
       y: window.frame().y + (lastPoint.y - currentPoint.y) * (2 + Math.random() * 2),
-    })
-  }
-}
-
-// TODO: This stills use too much resources -> Optimize!
-function moveWindows(point) {
-  Phoenix.log(point.x, point.y)
-
-  const space = Space.active()
-  const windows = space.windows({ visible: true })
-
-  // TODO: Find nearest window which does not enclose the point
-  const distances = windows.map((w) => {
-    const f = w.frame()
-    // Phoenix.log(w.app().name(), f.x, f.y, f.width, f.height)
-    const centerPoint = {
-      x: f.x + f.width / 2,
-      y: f.y + f.height / 2,
-    }
-
-    const distance = Math.sqrt(
-      Math.abs(point.x - centerPoint.x) ** 2 +
-      Math.abs(point.y - centerPoint.y) ** 2
-    )
-
-    return [w, distance]
-  })
-
-  if (distances.length) {
-    const sortedDistances = distances.sort((a, b) => a[1] - b[1])
-
-    // Phoenix.log(sortedDistances.map(a => a[1]))
-
-    const nearestWindow = sortedDistances[0][0]
-
-    Phoenix.log(nearestWindow.app().name())
-
-    const focusedWindow = Window.focused()
-
-    const windowOriginX = focusedWindow.frame().x + focusedWindow.frame().width / 2
-    const windowOriginY = focusedWindow.frame().y + focusedWindow.frame().height / 2
-
-    const mouseIsOnTheRight = point.x > windowOriginX
-    const mouseIsBelow = point.y > windowOriginY
-
-    if (!trollingEnabled) return
-
-    focusedWindow.setTopLeft({
-      x: focusedWindow.frame().x + (Math.random() * 30) * (mouseIsOnTheRight ? -1 : 1),
-      y: focusedWindow.frame().y + (Math.random() * 30) * (mouseIsBelow ? -1 : 1),
     })
   }
 }

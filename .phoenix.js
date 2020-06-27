@@ -1,10 +1,56 @@
-const trollingEnabled = true
+const trollingEnabled = false
 const throttleThreshold = 30
 const debounceThreshold = 2000
 const MAX_WEIGHT = 150
 const MIN_WEIGHT = 20
+const GAP = 12
+const GAP_DOUBLED = GAP * 2
+const TOP_OFFSET = 28
 let lastMousePoint = null
 let modalWeight = 20
+
+Key.on('space', [ 'control', 'option', 'command' ], () => Phoenix.reload())
+
+// TODO:
+// 1. Moving windows (Ctrl+shift+vim movements / arrows)
+// 2. Focusing windows (Ctrl+vim movements / arrows)
+// 3. Toggle Trolling mode
+function getScreenBarOffset(screen) {
+  const visibleFrame = screen.visibleFrame()
+  const fullFrame = screen.frame()
+
+  return fullFrame.height - visibleFrame.height
+}
+
+Key.on('left', [ 'control', 'shift' ], function () {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: 0 + GAP,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width / 2 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+});
+
+Key.on('right', [ 'control', 'shift' ], function () {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: screenFrame.width / 2 + GAP * 0.5,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width / 2 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+});
 
 const throttle = _.throttle(function (callback) {
   Phoenix.log("Throttled")
@@ -17,7 +63,7 @@ const debounce = _.debounce(function (callback) {
 }, debounceThreshold, { leading: false, trailing: true })
 
 Event.on("mouseDidMove", (point) => {
-  // Phoenix.log(point.x, point.y)
+  Phoenix.log(point.x, point.y)
   throttle(() => {
     showModal(point)
   })

@@ -31,7 +31,7 @@ You can customize by editing phoenix.js file, it's easy since it uses [Javascrip
 
 - `⌥ + ⇧ + F` : Full size
 - `⌥ + ⇧ + H` : Half left
-- `⌥ + ⇧ + l` : Half right
+- `⌥ + ⇧ + L` : Half right
 - `⌃ + ⇧ + 1` : One third left
 - `⌃ + ⇧ + 2` : One third center
 - `⌃ + ⇧ + 3` : One third right

@@ -230,7 +230,18 @@ Event.on("mouseDidMove", (point) => {
 
   debounce(() => {
     if (modalWeight >= MAX_WEIGHT / 2) {
-      Modal.build({ text: "GOOD.", duration: 1.0, weight: 200 }).show()
+      Modal.build({
+        text: "GOOD.",
+        duration: 1.0,
+        weight: 200,
+        appearance: 'transparent',
+        origin: (m) => {
+          return {
+            x: Screen.main().frame().width / 2 - ( m.width / 2 ),
+            y: Screen.main().frame().height - (Screen.main().frame().height / 2 + ( m.height / 2 ))
+          };
+        },
+      }).show()
     }
 
     modalWeight = MIN_WEIGHT

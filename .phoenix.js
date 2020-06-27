@@ -99,6 +99,39 @@ Key.on('3', ['control', 'shift'], () => {
   })
 })
 
+// Two thirds
+
+Key.on('4', ['control', 'shift'], () => {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: 0 + GAP,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width * 2 / 3 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+})
+
+Key.on('5', ['control', 'shift'], () => {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: screenFrame.width / 3 + GAP / 2,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width * 2 / 3 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+})
+
+
 const throttle = _.throttle(function (callback) {
   Phoenix.log("Throttled")
   callback()

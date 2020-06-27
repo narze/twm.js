@@ -1,4 +1,3 @@
-const trollingEnabled = true
 const throttleThreshold = 30
 const debounceThreshold = 2000
 const MAX_WEIGHT = 150
@@ -9,12 +8,24 @@ const TOP_OFFSET = 28
 let lastMousePoint = null
 let modalWeight = 20
 let currentFocusedWindow = null
+let trollingEnabled = true
 
 Key.on('space', [ 'control', 'option', 'command' ], () => Phoenix.reload())
 
-// TODO:
-// 3. Toggle Trolling mode
+// Toggle Trolling mode
+Key.on('t', [ 'option', 'shift' ], () => toggleTrollingMode())
 
+function toggleTrollingMode() {
+  trollingEnabled = !trollingEnabled
+
+  if (trollingEnabled) {
+    showScreenModal('Trolling mode enabled')
+  } else {
+    showScreenModal('Trolling mode disabled :feelsbadman:')
+  }
+}
+
+// Half
 Key.on('h', [ 'option', 'shift' ], () => resizeWindowHalf('left'));
 // Colemak i = Qwerty l
 Key.on('i', [ 'option', 'shift' ], () => resizeWindowHalf('right'));
@@ -49,6 +60,8 @@ function resizeWindowHalf(position) {
     width: screenFrame.width / 2 - GAP * 1.5,
     height: screenFrame.height - GAP_DOUBLED,
   })
+
+  showWindowModal('½', window)
 }
 
 function resizeWindowThird(position) {
@@ -81,6 +94,8 @@ function resizeWindowThird(position) {
     width,
     height: screenFrame.height - GAP_DOUBLED,
   })
+
+  showWindowModal('⅓', window)
 }
 
 function resizeWindowTwoThird(position) {
@@ -107,9 +122,10 @@ function resizeWindowTwoThird(position) {
     width: screenFrame.width * 2 / 3 - GAP * 1.5,
     height: screenFrame.height - GAP_DOUBLED,
   })
+
+  showWindowModal('⅔', window)
 }
 
-// TODO: Fix focusing invisible window
 function focusWindow(direction) {
   const currentWindow = Window.focused() // || currentFocusedWindow
   const spaceHash = Space.active().hash()
@@ -168,7 +184,10 @@ const debounce = _.debounce(function (callback) {
 }, debounceThreshold, { leading: false, trailing: true })
 
 Event.on("mouseDidMove", (point) => {
-  Phoenix.log(point.x, point.y)
+  // Phoenix.log(point.x, point.y)
+
+  if (!trollingEnabled) { return }
+
   throttle(() => {
     showModal(point)
   })
@@ -241,4 +260,38 @@ function getMenubarOffset(screen = Screen.main()) {
   const fullFrame = screen.frame()
 
   return fullFrame.height - visibleFrame.height
+}
+
+function showWindowModal(text = '', window = Window.focused()) {
+  const point = window.topLeft()
+  point.x += window.frame().width / 2
+  point.y += window.frame().height / 2
+
+  const modal = Modal.build({
+    text,
+    weight: 40,
+    duration: 1.0,
+    origin: (m) => {
+      return {
+        x: point.x - ( m.width / 2 ),
+        y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
+      };
+    },
+  })
+
+  modal.show()
+}
+
+function showScreenModal(text = '', screen = Screen.main()) {
+  Modal.build({
+    text,
+    duration: 1.0,
+    weight: 40,
+    origin: (m) => {
+      return {
+        x: screen.frame().width / 2 - ( m.width / 2 ),
+        y: screen.frame().height - (screen.frame().height / 2 + ( m.height / 2 ))
+      };
+    },
+  }).show()
 }

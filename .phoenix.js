@@ -15,21 +15,13 @@ Key.on('space', [ 'control', 'option', 'command' ], () => Phoenix.reload())
 // Toggle Trolling mode
 Key.on('t', [ 'option', 'shift' ], () => toggleTrollingMode())
 
-function toggleTrollingMode() {
-  trollingEnabled = !trollingEnabled
-
-  if (trollingEnabled) {
-    showScreenModal('Trolling mode enabled')
-  } else {
-    showScreenModal('Trolling mode disabled :feelsbadman:')
-  }
-}
+// Full
+Key.on('f', [ 'option', 'shift' ], () => resizeWindowFull())
 
 // Half
-Key.on('h', [ 'option', 'shift' ], () => resizeWindowHalf('left'));
-// Colemak i = Qwerty l
-Key.on('i', [ 'option', 'shift' ], () => resizeWindowHalf('right'));
-Key.on('l', [ 'option', 'shift' ], () => resizeWindowHalf('right'));
+Key.on('h', [ 'option', 'shift' ], () => resizeWindowHalf('left'))
+Key.on('l', [ 'option', 'shift' ], () => resizeWindowHalf('right'))
+Key.on('i', [ 'option', 'shift' ], () => resizeWindowHalf('right')) // Colemak i = Qwerty l
 
 // Third
 Key.on('1', ['control', 'shift'], () => resizeWindowThird('left'))
@@ -43,7 +35,23 @@ Key.on('5', ['control', 'shift'], () => resizeWindowTwoThird('right'))
 // Focus left / right
 Key.on('h', ['option'], () => focusWindow('west'))
 Key.on('l', ['option'], () => focusWindow('east'))
-Key.on('i', ['option'], () => focusWindow('east'))
+Key.on('i', ['option'], () => focusWindow('east')) // Colemak i = Qwerty l
+
+function resizeWindowFull() {
+  const screen = Screen.main()
+  const window = Window.focused()
+  const screenFrame = screen.flippedVisibleFrame()
+  const topOffset = getMenubarOffset(screen)
+
+  window.setFrame({
+    x: GAP,
+    y: topOffset + GAP,
+    width: screenFrame.width - GAP_DOUBLED,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+
+  showWindowModal('🖥', window)
+}
 
 function resizeWindowHalf(position) {
   const screen = Screen.main()
@@ -71,7 +79,7 @@ function resizeWindowThird(position) {
 
   const topOffset = getMenubarOffset(screen)
 
-  let x, width;
+  let x, width
 
   switch (position) {
     case 'left':
@@ -153,23 +161,12 @@ function focusWindow(direction) {
   })
 
   if (success) {
-    const point = focusedWindow.topLeft()
-    point.x += focusedWindow.frame().width / 2
-    point.y += focusedWindow.frame().height / 2
+    showWindowModal('👀', focusedWindow)
 
-    const modal = Modal.build({
-      text: '👉',
-      weight: 40,
-      duration: 0.1,
-      origin: (m) => {
-        return {
-          x: point.x - ( m.width / 2 ),
-          y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
-        };
-      },
+    Mouse.move({
+      x: focusedWindow.frame().x + focusedWindow.frame().width / 2,
+      y: focusedWindow.frame().y + focusedWindow.frame().height / 2,
     })
-
-    modal.show()
   }
 }
 
@@ -189,7 +186,7 @@ Event.on("mouseDidMove", (point) => {
   if (!trollingEnabled) { return }
 
   throttle(() => {
-    showModal(point)
+    showCursorModal(point)
   })
 
   debounce(() => {
@@ -203,7 +200,7 @@ Event.on("mouseDidMove", (point) => {
           return {
             x: Screen.main().frame().width / 2 - ( m.width / 2 ),
             y: Screen.main().frame().height - (Screen.main().frame().height / 2 + ( m.height / 2 ))
-          };
+          }
         },
       }).show()
     }
@@ -216,7 +213,7 @@ Event.on("mouseDidMove", (point) => {
   lastMousePoint = point
 })
 
-function showModal(point) {
+function showCursorModal(point) {
   // const origin = { x: 200, y: 400 }
   modalWeight = _.min([modalWeight * 1.05, MAX_WEIGHT])
 
@@ -232,7 +229,7 @@ function showModal(point) {
       return {
         x: point.x - ( m.width / 2 ),
         y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
-      };
+      }
     },
   })
 
@@ -275,7 +272,7 @@ function showWindowModal(text = '', window = Window.focused()) {
       return {
         x: point.x - ( m.width / 2 ),
         y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
-      };
+      }
     },
   })
 
@@ -291,7 +288,17 @@ function showScreenModal(text = '', screen = Screen.main()) {
       return {
         x: screen.frame().width / 2 - ( m.width / 2 ),
         y: screen.frame().height - (screen.frame().height / 2 + ( m.height / 2 ))
-      };
+      }
     },
   }).show()
+}
+
+function toggleTrollingMode() {
+  trollingEnabled = !trollingEnabled
+
+  if (trollingEnabled) {
+    showScreenModal('Trolling mode enabled 😬')
+  } else {
+    showScreenModal('Trolling mode disabled 😞')
+  }
 }

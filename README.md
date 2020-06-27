@@ -1,5 +1,7 @@
 # Twm.js (Trolling Window Manager)
 
+[Slides](https://docs.google.com/presentation/d/1pE4ynyCqtpgapCGMVSgnjJdB8haLL67qhW4HR3DJ9RI/edit?usp=sharing), [Demo (Thai Language)](https://www.youtube.com/watch?v=AEBRXHp3Xq0)
+
 ## What's that?
 
 A window manager which you can use to organize windows with your keyboard, sounds productive huh?

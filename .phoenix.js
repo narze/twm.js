@@ -131,6 +131,86 @@ Key.on('5', ['control', 'shift'], () => {
   })
 })
 
+// Focus left / right
+Key.on('left', ['option'], () => {
+  const currentWindow = Window.focused()
+  const spaceHash = Space.active().hash()
+  let focusedWindow = null
+
+  const success = currentWindow.neighbours('west').some(window => {
+    if (window.hash() == currentWindow) {
+      return false
+    }
+
+    if (window.spaces()[0].hash() == spaceHash) {
+      focusedWindow = window
+      return window.focus()
+    }
+
+    Phoenix.log('space unmatched')
+    return false
+  })
+
+  if (success) {
+    const point = focusedWindow.topLeft()
+    point.x += focusedWindow.frame().width / 2
+    point.y += focusedWindow.frame().height / 2
+
+    const modal = Modal.build({
+      text: '👉',
+      weight: 40,
+      duration: 0.1,
+      origin: (m) => {
+        return {
+          x: point.x - ( m.width / 2 ),
+          y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
+        };
+      },
+    })
+
+    modal.show()
+  }
+})
+
+Key.on('right', ['option'], () => {
+  const currentWindow = Window.focused()
+  const spaceHash = Space.active().hash()
+  let focusedWindow = null
+
+  const success = currentWindow.neighbours('east').some(window => {
+    if (window.hash() == currentWindow) {
+      return false
+    }
+
+    if (window.spaces()[0].hash() == spaceHash) {
+      focusedWindow = window
+      return window.focus()
+    }
+
+    Phoenix.log('space unmatched')
+    return false
+  })
+
+  if (success) {
+    const point = focusedWindow.topLeft()
+    point.x += focusedWindow.frame().width / 2
+    point.y += focusedWindow.frame().height / 2
+
+    const modal = Modal.build({
+      text: '👉',
+      weight: 40,
+      duration: 0.1,
+      origin: (m) => {
+        return {
+          x: point.x - ( m.width / 2 ),
+          y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
+        };
+      },
+    })
+
+    modal.show()
+  }
+})
 
 const throttle = _.throttle(function (callback) {
   Phoenix.log("Throttled")

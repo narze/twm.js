@@ -52,6 +52,53 @@ Key.on('right', [ 'control', 'shift' ], function () {
   })
 });
 
+// Third
+
+Key.on('1', ['control', 'shift'], () => {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: 0 + GAP,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width / 3 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+})
+
+Key.on('2', ['control', 'shift'], () => {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: screenFrame.width / 3 + GAP / 2,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width / 3 - GAP,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+})
+
+Key.on('3', ['control', 'shift'], () => {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: screenFrame.width / 3 * 2 + GAP / 2,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width / 3 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+})
+
 const throttle = _.throttle(function (callback) {
   Phoenix.log("Throttled")
   callback()

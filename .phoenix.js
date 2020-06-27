@@ -1,4 +1,4 @@
-const trollingEnabled = false
+const trollingEnabled = true
 const throttleThreshold = 30
 const debounceThreshold = 2000
 const MAX_WEIGHT = 150
@@ -22,7 +22,7 @@ function getScreenBarOffset(screen) {
   return fullFrame.height - visibleFrame.height
 }
 
-Key.on('left', [ 'control', 'shift' ], function () {
+Key.on('h', [ 'option', 'shift' ], function () {
   const screen = Screen.main()
   const screenFrame = screen.flippedVisibleFrame()
   const window = Window.focused()
@@ -37,7 +37,23 @@ Key.on('left', [ 'control', 'shift' ], function () {
   })
 });
 
-Key.on('right', [ 'control', 'shift' ], function () {
+// Colemak i = Qwerty l
+Key.on('i', [ 'option', 'shift' ], function () {
+  const screen = Screen.main()
+  const screenFrame = screen.flippedVisibleFrame()
+  const window = Window.focused()
+
+  const topOffset = getScreenBarOffset(screen)
+
+  window.setFrame({
+    x: screenFrame.width / 2 + GAP * 0.5,
+    y: topOffset + 0 + GAP,
+    width: screenFrame.width / 2 - GAP * 1.5,
+    height: screenFrame.height - GAP_DOUBLED,
+  })
+});
+
+Key.on('l', [ 'option', 'shift' ], function () {
   const screen = Screen.main()
   const screenFrame = screen.flippedVisibleFrame()
   const window = Window.focused()
@@ -132,7 +148,7 @@ Key.on('5', ['control', 'shift'], () => {
 })
 
 // Focus left / right
-Key.on('left', ['option'], () => {
+Key.on('h', ['option'], () => {
   const currentWindow = Window.focused()
   const spaceHash = Space.active().hash()
   let focusedWindow = null
@@ -172,7 +188,47 @@ Key.on('left', ['option'], () => {
   }
 })
 
-Key.on('right', ['option'], () => {
+Key.on('i', ['option'], () => {
+  const currentWindow = Window.focused()
+  const spaceHash = Space.active().hash()
+  let focusedWindow = null
+
+  const success = currentWindow.neighbours('east').some(window => {
+    if (window.hash() == currentWindow) {
+      return false
+    }
+
+    if (window.spaces()[0].hash() == spaceHash) {
+      focusedWindow = window
+      return window.focus()
+    }
+
+    Phoenix.log('space unmatched')
+    return false
+  })
+
+  if (success) {
+    const point = focusedWindow.topLeft()
+    point.x += focusedWindow.frame().width / 2
+    point.y += focusedWindow.frame().height / 2
+
+    const modal = Modal.build({
+      text: '👉',
+      weight: 40,
+      duration: 0.1,
+      origin: (m) => {
+        return {
+          x: point.x - ( m.width / 2 ),
+          y: Screen.main().frame().height - (point.y + ( m.height / 2 ))
+        };
+      },
+    })
+
+    modal.show()
+  }
+})
+
+Key.on('l', ['option'], () => {
   const currentWindow = Window.focused()
   const spaceHash = Space.active().hash()
   let focusedWindow = null
